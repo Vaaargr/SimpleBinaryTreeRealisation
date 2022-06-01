@@ -11,6 +11,9 @@ public class Main {
         simpleTree.getParent("18");
         simpleTree.printTree();
         simpleTree.findPathToElement("250");
-
+        simpleTree.addToParent("250", "a");
+        simpleTree.findPathToElement("a");
+        simpleTree.addToParent("b", "c");
+        simpleTree.addToParent("3","2");
     }
 }

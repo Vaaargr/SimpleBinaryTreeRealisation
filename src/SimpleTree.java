@@ -47,17 +47,25 @@ public class SimpleTree {
             return availableToAddLeftSibling || availableToAddRightSibling;
         }
 
+        public boolean addLeftSibling(Entry sibling) {
+            this.setLeftSibling(sibling);
+            sibling.setParent(this);
+            this.availableToAddLeftSibling = false;
+            return true;
+        }
+
+        public boolean addRightSibling(Entry sibling) {
+            this.setRightSibling(sibling);
+            sibling.setParent(this);
+            this.availableToAddRightSibling = false;
+            return true;
+        }
+
         public boolean addSibling(Entry sibling) {
             if (this.availableToAddLeftSibling) {
-                setLeftSibling(sibling);
-                sibling.setParent(this);
-                this.availableToAddLeftSibling = false;
-                return true;
+                return this.addLeftSibling(sibling);
             } else if (this.availableToAddRightSibling) {
-                setRightSibling(sibling);
-                sibling.setParent(this);
-                this.availableToAddRightSibling = false;
-                return true;
+                return this.addRightSibling(sibling);
             } else return false;
         }
 
@@ -90,7 +98,7 @@ public class SimpleTree {
     }
 
     public void add(String elementName) {
-        if (elementName == null) {
+        if (elementName == null || elementName.length() == 0) {
             throw new NullPointerException("Попытка добавить пустой элемент.");
         }
         Entry sibling = new Entry(elementName);
@@ -124,29 +132,29 @@ public class SimpleTree {
 
     public void remove(String elementName) {
         Entry current = getElementByName(root.getSiblings(), elementName, 2);
-        if (current != null && current.getParent().removeSibling(elementName)){
+        if (current != null && current.getParent().removeSibling(elementName)) {
             System.out.println("Элемент " + elementName + " был удалён из дерева.");
         } else {
             System.out.println("Элемент " + elementName + " не найден.");
         }
     }
 
-    public void getParent(String elementName){
+    public void getParent(String elementName) {
         Entry element = getElementByName(root.getSiblings(), elementName, 2);
-        if (element == null){
+        if (element == null) {
             System.out.println("Элемент " + elementName + " не найден.");
         } else {
             System.out.println("Предок элемента " + elementName + " - " + element.getParent().getElementName());
         }
     }
 
-    private Entry getElementByName(ArrayList<Entry> siblings, String elementName, int nextLevelSize){
-        if (siblings.size() == 0){
+    private Entry getElementByName(ArrayList<Entry> siblings, String elementName, int nextLevelSize) {
+        if (siblings.size() == 0) {
             return null;
         }
         ArrayList<Entry> nextLevelSiblings = new ArrayList<>((int) Math.pow(2, nextLevelSize));
-        for (Entry current: siblings) {
-            if (current.getElementName().equals(elementName)){
+        for (Entry current : siblings) {
+            if (current.getElementName().equals(elementName)) {
                 return current;
             } else {
                 nextLevelSiblings.addAll(current.getSiblings());
@@ -155,25 +163,25 @@ public class SimpleTree {
         return getElementByName(nextLevelSiblings, elementName, ++nextLevelSize);
     }
 
-    public void printTree(){
+    public void printTree() {
         printAllElements(root.getSiblings(), 2);
     }
 
-    private void printAllElements(ArrayList<Entry> siblings, int nextLevelSize){
-        if (siblings.size() > 0){
+    private void printAllElements(ArrayList<Entry> siblings, int nextLevelSize) {
+        if (siblings.size() > 0) {
             ArrayList<Entry> nextLevelSiblings = new ArrayList<>((int) Math.pow(2, nextLevelSize));
-            for (Entry current: siblings) {
+            for (Entry current : siblings) {
                 StringBuilder builder = new StringBuilder("Элемент "
                         + current.getElementName()
                         + " предок "
                         + current.getParent().getElementName());
-                if (current.getLeftSibling() == null && current.getRightSibling() == null){
+                if (current.getLeftSibling() == null && current.getRightSibling() == null) {
                     builder.append(" потомков нет");
                 } else {
-                    if (current.getLeftSibling() != null){
+                    if (current.getLeftSibling() != null) {
                         builder.append(" левый потомок ").append(current.getLeftSibling().getElementName());
                     }
-                    if (current.getRightSibling() != null){
+                    if (current.getRightSibling() != null) {
                         builder.append(" правый потомок ").append(current.getRightSibling().getElementName());
                     }
                 }
@@ -185,17 +193,17 @@ public class SimpleTree {
         }
     }
 
-    public int size(){
+    public int size() {
         this.size = 0;
         count(root.getSiblings(), 2);
         return size;
     }
 
-    private void count(ArrayList<Entry> siblings, int nextLevelSize){
-        if (siblings.size() > 0){
+    private void count(ArrayList<Entry> siblings, int nextLevelSize) {
+        if (siblings.size() > 0) {
             ArrayList<Entry> nextLevelSiblings = new ArrayList<>((int) Math.pow(2, nextLevelSize));
-            for (Entry current: siblings) {
-                if (current != null){
+            for (Entry current : siblings) {
+                if (current != null) {
                     size++;
                     nextLevelSiblings.addAll(current.getSiblings());
                 }
@@ -204,20 +212,37 @@ public class SimpleTree {
         }
     }
 
-    public void findPathToElement(String elementName){
+    public void findPathToElement(String elementName) {
         Entry element = getElementByName(root.getSiblings(), elementName, 2);
-        if (element == null){
+        if (element == null) {
             System.out.println("Элемент " + elementName + " не найден.");
         } else {
             System.out.println("Путь к элементу " + elementName + " - " + pathToElement(element));
         }
     }
 
-    private String pathToElement(Entry element){
-        if (element.getParent() == null){
+    private String pathToElement(Entry element) {
+        if (element.getParent() == null) {
             return element.getElementName();
         } else {
             return pathToElement(element.getParent()) + "\\" + element.getElementName();
+        }
+    }
+
+    public void addToParent(String parentName, String elementName){
+        if (elementName == null || elementName.length() == 0){
+            throw new NullPointerException("Попытка добавить пустой элемент.");
+        }
+        Entry parent = getElementByName(root.getSiblings(), parentName, 2);
+        if (parent == null){
+            System.out.println("Элемент с именем " + parentName + " не найден.");
+        } else {
+            if (parent.canAddSiblings()){
+                parent.addSibling(new Entry(elementName));
+                System.out.println("Элемент с именем " + elementName + " стал потомком элемента " + parentName + ".");
+            } else {
+                System.out.println("У элемента " + parentName + " не может быть больше потомков.");
+            }
         }
     }
 }
